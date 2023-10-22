@@ -1,7 +1,6 @@
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.http.response import JsonResponse
-from sklearn.metrics import accuracy_score
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.svm import SVC
 from sklearn.pipeline import Pipeline
