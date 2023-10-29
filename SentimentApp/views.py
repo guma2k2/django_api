@@ -1,7 +1,7 @@
 from SentimentApp.models import Sentiment
 from django.views.decorators.csrf import csrf_exempt
 from django.http.response import JsonResponse
-
+from sklearn.metrics import accuracy_score
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
@@ -10,7 +10,7 @@ from sklearn.pipeline import Pipeline
 from unidecode import unidecode
 import joblib
 
-stop_words = ['bai', 'hat', 'nay', 'nhac', 'nao', 'ma', 'no', 'ca','khuc','cac','cai','can','chi','va','vua','rat','nhung']
+stop_words = ['bai', 'hat', 'nay', 'nhac', 'nao', 'ma', 'no', 'ca','khuc','cac','cai','can','chi','va','vua','rat','nhung','ban']
 
 @csrf_exempt
 def handleRequest(request):
@@ -42,15 +42,14 @@ def train_data(queryset, save_dir):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
     print(X_train)
-    
-    # Save the training data to files
-    joblib.dump(X_train, save_dir + 'X_train.pkl')
-    joblib.dump(y_train, save_dir + 'y_train.pkl')
-    
-    # Create and fit the pipeline
+
     model = Pipeline([
         ('vect', CountVectorizer()),
         ('tfidf', TfidfTransformer()),
         ('clf', SVC(kernel="rbf", C=1.0))
     ])
     model.fit(X_train, y_train)
+
+    predicted = model.predict(X_test)
+    print(accuracy_score(predicted,y_test)*100)
+    joblib.dump(model, save_dir + 'chandoan.pkl')

@@ -71,9 +71,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'spotify-aws',
-        'USER': 'admin',
-        'PASSWORD': "password",
-        'HOST': 'db-awss.cg62znhurkgd.ap-southeast-2.rds.amazonaws.com',
+        'USER': 'root',
+        'PASSWORD': "123456789",
+        'HOST': 'localhost',
         'PORT': '3306'
     }
 }
