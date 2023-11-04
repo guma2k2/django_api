@@ -9,7 +9,8 @@ from sklearn.svm import SVC
 from sklearn.pipeline import Pipeline
 from unidecode import unidecode
 import joblib
-
+from rest_framework.parsers  import JSONParser
+from SentimentApp.serializers import SentimentSerializer
 stop_words = ['bai', 'hat', 'nay', 'nhac', 'nao', 'ma', 'no', 'ca','khuc','cac','cai','can','chi','va','vua','rat','nhung','ban']
 
 @csrf_exempt
@@ -17,8 +18,27 @@ def handleRequest(request):
     if request.method == 'GET':
         sentiments=Sentiment.objects.all()
         save_dir = '/Applications/workspace/python_project/DjangoApi/DjangoApi/'
-        train_data(sentiments,save_dir)
-        return JsonResponse("Ok",safe=False)
+        score = train_data(sentiments,save_dir)
+        return JsonResponse(score,safe=False)
+    
+@csrf_exempt    
+def handleRequestAdmin(request):
+    if request.method == 'GET':
+        sentiments=Sentiment.objects.all()
+        sentimentSerializer = SentimentSerializer(sentiments,many=True);
+        return JsonResponse(sentimentSerializer.data,safe=False)
+    elif request.method == 'POST':
+        sentimentRequest = JSONParser().parse(request)
+        sentimentSerializer = SentimentSerializer(data=sentimentRequest)
+        check = Sentiment.objects.filter(text = sentimentRequest['text']).values()
+        if check.exists():
+            return JsonResponse("a text is duplicate",safe=False)
+        else:
+            if sentimentSerializer.is_valid():
+                sentimentSerializer.save()
+                return JsonResponse("save success",safe=False)
+
+        
     
 
 def remove_custom_stop_words(text):
@@ -51,5 +71,7 @@ def train_data(queryset, save_dir):
     model.fit(X_train, y_train)
 
     predicted = model.predict(X_test)
-    print(accuracy_score(predicted,y_test)*100)
+    score =accuracy_score(predicted,y_test)*100
+    print(score)
     joblib.dump(model, save_dir + 'chandoan.pkl')
+    return score

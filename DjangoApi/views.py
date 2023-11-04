@@ -4,6 +4,7 @@ from django.http.response import JsonResponse
 from unidecode import unidecode
 import joblib
 from urllib.parse import unquote
+from sklearn.metrics import accuracy_score
 
 stop_words = ['bai', 'hat', 'nay', 'nhac', 'nao', 'ma', 'no', 'ca','khuc','cac','cai','can','chi','va','vua','rat','nhung','ban']
 def remove_custom_stop_words(text):
@@ -19,8 +20,6 @@ def remove_custom_stop_words(text):
 def my_get_view(request):
     param_value = request.GET.get('text', '')
     model = joblib.load('/Applications/workspace/python_project/DjangoApi/DjangoApi/chandoan.pkl')
-
-
     text = unidecode(unquote(param_value))
     text = remove_custom_stop_words(text)
     print(text)
