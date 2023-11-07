@@ -36,10 +36,27 @@ def handleRequestAdmin(request):
         else:
             if sentimentSerializer.is_valid():
                 sentimentSerializer.save()
-                return JsonResponse("save success",safe=False)
-
+                return JsonResponse("Added successfully",safe=False)
+    elif request.method == 'PUT':
+        sentimentRequest = JSONParser().parse(request)
+        underUpdate = Sentiment.objects.get(id=sentimentRequest['id'])
+        sentimentSerializer = SentimentSerializer(underUpdate,data=sentimentRequest)
+        if sentimentSerializer.is_valid():
+                sentimentSerializer.save()
+                return JsonResponse("Updated successfully",safe=False)
         
-    
+
+@csrf_exempt            
+def handleRequestWithID(request,id):
+    if request.method == 'GET':
+        sentiment = Sentiment.objects.get(pk=id)
+        sentimentSerializer = SentimentSerializer(sentiment,many=False);
+        return JsonResponse(sentimentSerializer.data,safe=False)
+    elif request.method == 'DELETE':
+        sentiment = Sentiment.objects.get(pk=id)
+        sentiment.delete()
+        return JsonResponse("Delete successfully",safe=False)
+
 
 def remove_custom_stop_words(text):
     words = text.split()
@@ -69,9 +86,8 @@ def train_data(queryset, save_dir):
         ('clf', SVC(kernel="rbf", C=1.0))
     ])
     model.fit(X_train, y_train)
-
     predicted = model.predict(X_test)
-    score =accuracy_score(predicted,y_test)*100
+    score = accuracy_score(predicted,y_test)*100
     print(score)
     joblib.dump(model, save_dir + 'chandoan.pkl')
     return score
